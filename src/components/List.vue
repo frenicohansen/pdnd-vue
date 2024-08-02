@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Task from "./Task.vue";
-import { ref, watchEffect } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { extractClosestEdge } from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge";
 import { reorderWithEdge } from "@atlaskit/pragmatic-drag-and-drop-hitbox/util/reorder-with-edge";
@@ -9,8 +9,9 @@ import { isTaskData, getTasks, type TTask } from "./task-data";
 
 const tasks = ref<TTask[]>(getTasks());
 
-watchEffect((onCleanup) => {
-  const cleanup = monitorForElements({
+let cleanup = () => { }
+onMounted(() => {
+  cleanup = monitorForElements({
     canMonitor({ source }) {
       return isTaskData(source.data);
     },
@@ -61,9 +62,11 @@ watchEffect((onCleanup) => {
       }
     },
   });
-  
-  onCleanup(cleanup);
 });
+
+onUnmounted(() => {
+  cleanup()
+})
 </script>
 
 <template>

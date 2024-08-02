@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import DropIndicator from "./DropIndicator.vue";
 import Status from "./Status.vue";
 import { GripVertical } from "lucide-vue-next";
@@ -46,12 +46,13 @@ const idle: TaskState = { type: "idle" };
 const elRef = ref<HTMLDivElement | null>(null);
 const elState = ref<TaskState>(idle);
 
-watchEffect((onCleanup) => {
+let cleanup = () => { }
+onMounted(() => {
   if (elRef.value == null) {
     return;
   }
 
-  const cleanup = combine(
+  cleanup = combine(
     draggable({
       element: elRef.value,
       getInitialData() {
@@ -120,11 +121,11 @@ watchEffect((onCleanup) => {
       },
     })
   )
-
-  onCleanup(() => {
-    cleanup();
-  });
 });
+
+onUnmounted(() => {
+  cleanup()
+})
 </script>
 
 <template>
